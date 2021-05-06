@@ -83,4 +83,33 @@ public class BatchJobConfiguration {
             .writer(writer())
             .build();
     }
+
+    @Bean
+    @StepScope
+    public FlatFileItemReader<PatientRecord> reader(
+        @Value("#{jobParameters['" + Constants.JOB_PARAM_FILE_NAME + "']}")String fileName) {
+        return new FlatFileItemReaderBuilder<PatientRecord>()
+            .name(Constants.ITEM_READER_NAME)
+            .resource(
+                new PathResource(
+                    Paths.get(applicationProperties.getBatch().getInputPath() +
+                        File.separator + fileName)))
+            .linesToSkip(1)
+            .lineMapper(lineMapper())
+            .build();
+    }
+    @Bean
+    public LineMapper<PatientRecord> lineMapper() {
+        DefaultLineMapper<PatientRecord> mapper = new DefaultLineMapper<>();
+        mapper.setFieldSetMapper((fieldSet) -> new PatientRecord(
+            fieldSet.readString(0), fieldSet.readString(1),
+            fieldSet.readString(2), fieldSet.readString(3),
+            fieldSet.readString(4), fieldSet.readString(5),
+            fieldSet.readString(6), fieldSet.readString(7),
+            fieldSet.readString(8), fieldSet.readString(9),
+            fieldSet.readString(10), fieldSet.readString(11),
+            fieldSet.readString(12)));
+        mapper.setLineTokenizer(new DelimitedLineTokenizer());
+        return mapper;
+    }
 }
