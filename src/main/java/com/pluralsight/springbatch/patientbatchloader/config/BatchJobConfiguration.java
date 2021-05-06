@@ -74,17 +74,13 @@ public class BatchJobConfiguration {
     }
 
     @Bean
-    public Step step() throws Exception {
+    public Step step(ItemReader<PatientRecord> itemReader) throws Exception {
         return this.stepBuilderFactory
             .get(Constants.STEP_NAME)
-            .tasklet(new Tasklet() {
-                @Override
-                public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
-                    throws Exception {
-                    System.err.println("Hello World!");
-                    return RepeatStatus.FINISHED;
-                }
-            })
+            .<PatientRecord, PatientRecord>chunk(2)
+            .reader(itemReader)
+            .processor(processor())
+            .writer(writer())
             .build();
     }
 }
