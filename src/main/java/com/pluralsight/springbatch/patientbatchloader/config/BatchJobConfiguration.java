@@ -112,4 +112,22 @@ public class BatchJobConfiguration {
         mapper.setLineTokenizer(new DelimitedLineTokenizer());
         return mapper;
     }
+    @Bean
+    @StepScope
+    public PassThroughItemProcessor<PatientRecord> processor() {
+        return new PassThroughItemProcessor<>();
+    }
+
+    @Bean
+    @StepScope
+    public ItemWriter<PatientRecord> writer() {
+        return new ItemWriter<PatientRecord>() {
+            @Override
+            public void write(List<? extends PatientRecord> items) throws Exception {
+                for (PatientRecord patientRecord : items) {
+                    System.err.println("Writing item: " + patientRecord.toString());
+                }
+            }
+        };
+    }
 }
